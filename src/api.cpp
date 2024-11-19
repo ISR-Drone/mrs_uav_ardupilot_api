@@ -539,7 +539,7 @@ std::tuple<bool, std::string> MrsUavPx4Api::callbackOffboard(void) {
   mavros_msgs::SetMode srv;
 
   srv.request.base_mode   = 0;
-  srv.request.custom_mode = "OFFBOARD";
+  srv.request.custom_mode = "GUIDED";
 
   bool res = sch_mavros_mode_.call(srv);
 
@@ -645,10 +645,12 @@ void MrsUavPx4Api::callbackMavrosState(const mavros_msgs::State::ConstPtr msg) {
   {
     std::scoped_lock lock(mutex_status_);
 
-    offboard_  = msg->mode == "OFFBOARD";
+    offboard_  = msg->mode == "GUIDED";
     armed_     = msg->armed;
     connected_ = true;
     mode_      = msg->mode;
+    if(mode_ == "GUIDED")
+      mode_ = "OFFBOARD";
   }
 
   // | ----------------- publish the diagnostics ---------------- |
